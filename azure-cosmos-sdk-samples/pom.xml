@@ -9,9 +9,6 @@
     <packaging>pom</packaging>
     <version>1.0</version>
     <modules>
-        <module>sdkv2</module>
-        <module>sdkv2-async</module>
-        <module>sdkv3</module>
         <module>sdkv4</module>
     </modules>
 </project>
