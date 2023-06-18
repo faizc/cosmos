@@ -3,15 +3,19 @@ package com.sample.cosmos.client;
 import com.azure.core.util.Context;
 import com.azure.cosmos.*;
 import com.azure.cosmos.models.*;
+import com.sample.cosmos.diagnostics.ClientDiagnosticsSamples;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
 public class CosmosClientUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CosmosClientUtil.class);
 
     public static final String ENDPOINT = "https://albaik.documents.azure.com:443/";
     public static final String KEY = "==";
-    public static final String DATABASE = "ChangeFeedDemo";
-    public static final String COLLECTION = "Entity";
+    public static final String DATABASE = "Nutrition";
+    public static final String COLLECTION = "Food";
     public static final String LEASE_COLLECTION = "Entity-Lease";
     public static final String COLLECTION_WITH_DEFAULT_INDEX = "FoodDefaultIdx";
     public static final String COLLECTION_WITH_NO_INDEX = "FoodNoIdx";
@@ -35,7 +39,7 @@ public class CosmosClientUtil {
     }
 
     public static CosmosContainer getCollection(final CosmosClient client, final String colName) {
-        System.out.println("Database " + DATABASE + " Collection " + colName);
+        LOGGER.info("Database " + DATABASE + " Collection " + colName);
         return client.getDatabase(DATABASE).getContainer(colName);
     }
 
@@ -59,12 +63,14 @@ public class CosmosClientUtil {
                                         new CosmosDiagnosticsThresholds()
                                                 .setPointOperationLatencyThreshold(Duration.ofMillis(100))
                                                 .setNonPointOperationLatencyThreshold(Duration.ofMillis(100))
-                                                .setRequestChargeThreshold(100)
+                                                .setRequestChargeThreshold(1)
                                 )
                                 .diagnosticsHandler(new CosmosDiagnosticsHandler() {
                                     @Override
                                     public void handleDiagnostics(final CosmosDiagnosticsContext cosmosDiagnosticsContext, final Context context) {
-
+                                        cosmosDiagnosticsContext.getDiagnostics().forEach(consumer->{
+                                            LOGGER.info(consumer.toString());
+                                        });
                                     }
                                 })
                 )
@@ -81,7 +87,7 @@ public class CosmosClientUtil {
     }
 
     public static CosmosAsyncContainer getAsyncCollection(final CosmosAsyncClient client, final String colName) {
-        System.out.println("Database " + DATABASE + " Collection " + colName);
+        LOGGER.info("Database " + DATABASE + " Collection " + colName);
         return client.getDatabase(DATABASE).getContainer(colName);
     }
 
