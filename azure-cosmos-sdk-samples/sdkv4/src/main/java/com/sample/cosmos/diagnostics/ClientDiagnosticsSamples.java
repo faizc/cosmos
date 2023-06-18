@@ -54,7 +54,7 @@ public class ClientDiagnosticsSamples {
                 })
                 .timeout(Duration.ofMillis(1000L))
                 .doOnError(error -> {
-                    LOGGER.info("Message --> "+error.getMessage());
+                    LOGGER.info("Message --> " + error.getMessage());
                     error.printStackTrace();
                     latch.countDown();
                 })
