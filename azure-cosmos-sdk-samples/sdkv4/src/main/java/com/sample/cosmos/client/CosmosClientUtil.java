@@ -1,5 +1,6 @@
 package com.sample.cosmos.client;
 
+import com.azure.core.util.Context;
 import com.azure.cosmos.*;
 import com.azure.cosmos.models.*;
 
@@ -34,7 +35,7 @@ public class CosmosClientUtil {
     }
 
     public static CosmosContainer getCollection(final CosmosClient client, final String colName) {
-        System.out.println("Database "+DATABASE+ " Collection "+colName);
+        System.out.println("Database " + DATABASE + " Collection " + colName);
         return client.getDatabase(DATABASE).getContainer(colName);
     }
 
@@ -43,6 +44,30 @@ public class CosmosClientUtil {
                 .endpoint(ENDPOINT)
                 .key(KEY)
                 .contentResponseOnWriteEnabled(true)
+                .buildAsyncClient();
+        return client;
+    }
+
+    public static CosmosAsyncClient getAsyncClientWithClientTelemetry() {
+        CosmosAsyncClient client = new CosmosClientBuilder()
+                .endpoint(ENDPOINT)
+                .key(KEY)
+                .contentResponseOnWriteEnabled(true)
+                .clientTelemetryConfig(
+                        new CosmosClientTelemetryConfig()
+                                .diagnosticsThresholds(
+                                        new CosmosDiagnosticsThresholds()
+                                                .setPointOperationLatencyThreshold(Duration.ofMillis(100))
+                                                .setNonPointOperationLatencyThreshold(Duration.ofMillis(100))
+                                                .setRequestChargeThreshold(100)
+                                )
+                                .diagnosticsHandler(new CosmosDiagnosticsHandler() {
+                                    @Override
+                                    public void handleDiagnostics(final CosmosDiagnosticsContext cosmosDiagnosticsContext, final Context context) {
+
+                                    }
+                                })
+                )
                 .buildAsyncClient();
         return client;
     }
@@ -56,7 +81,7 @@ public class CosmosClientUtil {
     }
 
     public static CosmosAsyncContainer getAsyncCollection(final CosmosAsyncClient client, final String colName) {
-        System.out.println("Database "+DATABASE+ " Collection "+colName);
+        System.out.println("Database " + DATABASE + " Collection " + colName);
         return client.getDatabase(DATABASE).getContainer(colName);
     }
 
@@ -70,7 +95,7 @@ public class CosmosClientUtil {
             CosmosContainerProperties containerSettings = collectionLink.read().block().getProperties();
             containerSettings.setChangeFeedPolicy(ChangeFeedPolicy.createAllVersionsAndDeletesPolicy(Duration.ofMinutes(15)));
             CosmosContainerResponse containerResponse = collectionLink.replace(containerSettings).block();
-            System.out.println("Retention Period "+containerResponse.getProperties().getChangeFeedPolicy().getRetentionDurationForAllVersionsAndDeletesPolicy());
+            System.out.println("Retention Period " + containerResponse.getProperties().getChangeFeedPolicy().getRetentionDurationForAllVersionsAndDeletesPolicy());
         }
     }
 
