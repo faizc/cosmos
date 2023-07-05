@@ -99,10 +99,10 @@ public class QueryPatterns {
         CosmosClient client = CosmosClientUtil.getClient();
         CosmosContainer container = CosmosClientUtil.getCollection(client
 //                , CosmosClientUtil.COLLECTION_WITH_CUSTOM_INDEX);
-                , CosmosClientUtil.COLLECTION_WITH_DEFAULT_INDEX);
+                , CosmosClientUtil.COLLECTION);
                 //, CosmosClientUtil.COLLECTION_WITH_NO_INDEX);
         //
-        //writeRecord(container, "Seafood", "212313");
+        writeRecord(container, "Seafood", "212313");
         //pointread(container, "Poultry Products", "05001");
         //pointread(container, "Cereal Grains and Pasta", "120002"); //large 1MB document
         //queryInPartitionWithId(container, "Poultry Products", "05001");
@@ -174,8 +174,9 @@ public class QueryPatterns {
         queryOptions.setQueryMetricsEnabled(true);
         queryOptions.setMaxBufferedItemCount(ITEM_COUNT);
 
-        CosmosPagedIterable<Food> familiesPagedIterable = container.queryItems(
-                "SELECT * FROM Food WHERE  Food.foodGroup = '"+pkey+"' ", queryOptions, Food.class);
+        /*CosmosPagedIterable<Food> familiesPagedIterable = container.queryItems(
+                "SELECT * FROM Food WHERE  Food.foodGroup = '"+pkey+"' ", queryOptions, Food.class);*/
+        CosmosPagedIterable<Food> familiesPagedIterable = container.readAllItems(new PartitionKey(pkey), Food.class);
 
         familiesPagedIterable.iterableByPage(ITEM_COUNT).forEach(cosmosItemPropertiesFeedResponse -> {
             if(QUERY_DIAGNOSTICS_FLAG)
@@ -225,10 +226,11 @@ public class QueryPatterns {
             if(QUERY_DIAGNOSTICS_FLAG)
                 LOGGER.info(cosmosItemPropertiesFeedResponse.getCosmosDiagnostics().toString());
             //
-            LOGGER.info("Got a page of query result with {} items(s), request charge of {}, activity-id {}",
+            LOGGER.info("Got a page of query result with {} items(s), request charge of {}, activity-id {}, session-token {}",
                     cosmosItemPropertiesFeedResponse.getResults().size(),
                     cosmosItemPropertiesFeedResponse.getRequestCharge(),
-                    cosmosItemPropertiesFeedResponse.getActivityId());
+                    cosmosItemPropertiesFeedResponse.getActivityId(),
+                    cosmosItemPropertiesFeedResponse.getSessionToken());
             //
             LOGGER.info("Item Ids {}", cosmosItemPropertiesFeedResponse
                     .getResults()
@@ -302,8 +304,8 @@ public class QueryPatterns {
             double requestCharge = item.getRequestCharge();
             Duration requestLatency = item.getDuration();
 
-            LOGGER.info("Item successfully write with id {} with a charge of {} within duration {} activity-id {}",
-                    item.getItem().getId(), requestCharge, requestLatency, item.getActivityId());
+            LOGGER.info("Item successfully write with id {} with a charge of {} within duration {} activity-id {} session-token {}",
+                    item.getItem().getId(), requestCharge, requestLatency, item.getActivityId(), item.getSessionToken());
             System.out.println("\n\n\n");
         } catch (CosmosException e) {
             LOGGER.error("Read Item failed with", e);

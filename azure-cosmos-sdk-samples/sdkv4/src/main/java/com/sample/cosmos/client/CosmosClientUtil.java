@@ -61,14 +61,19 @@ public class CosmosClientUtil {
                         new CosmosClientTelemetryConfig()
                                 .diagnosticsThresholds(
                                         new CosmosDiagnosticsThresholds()
-                                                .setPointOperationLatencyThreshold(Duration.ofMillis(100))
-                                                .setNonPointOperationLatencyThreshold(Duration.ofMillis(100))
-                                                .setRequestChargeThreshold(1)
+                                                .setPointOperationLatencyThreshold(Duration.ofMillis(1000000))
+                                                .setNonPointOperationLatencyThreshold(Duration.ofMillis(10000000))
+                                                .setRequestChargeThreshold(1000)
+                                                .setPayloadSizeThreshold(1024000) // 1MB size
                                 )
                                 .diagnosticsHandler(new CosmosDiagnosticsHandler() {
                                     @Override
-                                    public void handleDiagnostics(final CosmosDiagnosticsContext cosmosDiagnosticsContext, final Context context) {
+                                    public void handleDiagnostics(final CosmosDiagnosticsContext cosmosDiagnosticsContext,
+                                                                  final Context context) {
+                                        LOGGER.info(cosmosDiagnosticsContext.toJson());
                                         cosmosDiagnosticsContext.getDiagnostics().forEach(consumer->{
+                                            LOGGER.info("isPointOperation ==> "+cosmosDiagnosticsContext.isPointOperation());
+                                            LOGGER.info("isThresholdViolated ==> " +cosmosDiagnosticsContext.isThresholdViolated());
                                             LOGGER.info(consumer.toString());
                                         });
                                     }
