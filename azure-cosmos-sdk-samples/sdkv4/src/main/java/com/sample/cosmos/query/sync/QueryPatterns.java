@@ -117,6 +117,8 @@ public class QueryPatterns {
     // The only factor affecting the RU charge of a point read (besides the consistency level used) is the size of the item retrieved.
     public static void pointread(final CosmosContainer container, final String pkey, final String id) {
         try {
+            CosmosQueryRequestOptions options = new CosmosQueryRequestOptions();
+
             System.out.println("\n\n\n");
             CosmosItemResponse<Food> item = container.readItem(id, new PartitionKey(pkey), Food.class);
 

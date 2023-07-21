@@ -68,6 +68,28 @@ public class ClientDiagnosticsSamples {
         //  Set query metrics enabled to get metrics around query executions
         queryOptions.setQueryMetricsEnabled(true);
 
+
+        container
+                .readItem(id, new PartitionKey(pkey), Food.class)
+                .doOnSuccess(response -> {
+                    // Log diagnostics if the duration exceeds 100ms
+                    if(response.getDuration().compareTo(Duration.ofMillis(100))>0) {
+                        LOGGER.info("Diagnostic String -- " + response.getDiagnostics());
+                    }
+                    // Log diagnostics if the request charge is greater than 10
+                    if(response.getRequestCharge() > 10) {
+                        LOGGER.info("Diagnostic String -- " + response.getDiagnostics());
+                    }
+                })
+                .doOnError(exception -> {
+                    if (exception instanceof CosmosException) {
+                        LOGGER.info("Diagnostic String -- " + ((CosmosException) exception).getDiagnostics());
+                    }
+                })
+                .subscribe();
+
+
+
         container
                 .queryItems(
                         "SELECT * FROM Food WHERE Food.id = '" + id + "' and Food.foodGroup = '" + pkey + "' ", queryOptions, Food.class)
