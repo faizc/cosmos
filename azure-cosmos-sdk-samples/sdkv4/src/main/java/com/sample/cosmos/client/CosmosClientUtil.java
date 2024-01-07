@@ -12,10 +12,10 @@ import java.time.Duration;
 public class CosmosClientUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(CosmosClientUtil.class);
 
-    public static final String ENDPOINT = "https://albaik.documents.azure.com:443/";
+    public static final String ENDPOINT = "https://rubixcube.documents.azure.com:443/";
     public static final String KEY = "==";
-    public static final String DATABASE = "Nutrition";
-    public static final String COLLECTION = "Food";
+    public static final String DATABASE = "Sample";
+    public static final String COLLECTION = "Offline";
     public static final String LEASE_COLLECTION = "Entity-Lease";
     public static final String COLLECTION_WITH_DEFAULT_INDEX = "FoodDefaultIdx";
     public static final String COLLECTION_WITH_NO_INDEX = "FoodNoIdx";

@@ -33,7 +33,7 @@ public class PartitionSplittingFailure_410_1007 {
         directConnectionConfig.setConnectTimeout(Duration.ofSeconds(2));
         //
 //        CosmosAsyncClient client = CosmosClientUtil.getAsyncClientWithE2EThresold(builder, directConnectionConfig);
-        CosmosAsyncClient client = CosmosClientUtil.getAsyncClientWithE2EThresold();
+        CosmosAsyncClient client = CosmosClientUtil.getAsyncClient();
         CosmosAsyncContainer container = CosmosClientUtil.getAsyncCollection(client);
         //
         List<FeedRange> feedRanges = container.getFeedRanges().block();

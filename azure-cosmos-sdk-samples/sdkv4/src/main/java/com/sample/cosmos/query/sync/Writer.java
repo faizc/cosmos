@@ -34,7 +34,7 @@ public class Writer {
             thread.setName("Job"+i);
             //thread.start();
 
-            String uuid = i + "";
+            String uuid = UUID.randomUUID().toString();
             String partitionKey = "Sample" + RandomStringUtils.randomAlphabetic(10);
             //
             ObjectNode node = getDocumentDefinition(uuid, partitionKey);
@@ -49,7 +49,7 @@ public class Writer {
                     .subscribe();
             System.out.println("ID " + uuid + " pkey " + partitionKey);
 
-            if (i % 1000 == 0) {
+            if (i % 10000 == 0) {
                 Thread.sleep(5 * 1000);
             }
             //System.out.println(response.getDiagnostics());
@@ -69,7 +69,7 @@ public class Writer {
         @Override
         public void run() {
             while (true) {
-                String uuid = Thread.currentThread().getName() + RandomStringUtils.randomAlphabetic(10);
+                String uuid = Thread.currentThread().getName() + UUID.randomUUID().toString();
                 String partitionKey = Thread.currentThread().getName() + RandomStringUtils.randomAlphabetic(10);
                 //
                 ObjectNode node = getDocumentDefinition(uuid, partitionKey);

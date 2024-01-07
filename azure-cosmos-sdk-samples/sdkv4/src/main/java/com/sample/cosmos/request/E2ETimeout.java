@@ -21,7 +21,7 @@ public class E2ETimeout {
 
 
     public static void main(String... args) throws Exception {
-        CosmosAsyncClient client = CosmosClientUtil.getAsyncClientWithE2EThresold();
+        CosmosAsyncClient client = CosmosClientUtil.getAsyncClient();
         CosmosAsyncContainer container = CosmosClientUtil.getAsyncCollection(client
                 , CosmosClientUtil.COLLECTION);
         queryInPartitionWithIdV2(container, "Baby Foods", "03246");

@@ -28,7 +28,7 @@ public class PartitionMigratingFailure_410_1008 {
         directConnectionConfig.setConnectTimeout(Duration.ofSeconds(2));
         //
 //        CosmosAsyncClient client = CosmosClientUtil.getAsyncClientWithE2EThresold(builder, directConnectionConfig);
-        CosmosAsyncClient client = CosmosClientUtil.getAsyncClientWithE2EThresold();
+        CosmosAsyncClient client = CosmosClientUtil.getAsyncClient();
         CosmosAsyncContainer container = CosmosClientUtil.getAsyncCollection(client);
         //
         FaultInjectionRule faultInjectionRule =
