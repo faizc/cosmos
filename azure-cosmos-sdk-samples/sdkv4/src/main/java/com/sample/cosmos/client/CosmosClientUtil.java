@@ -8,11 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
 
 public class CosmosClientUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(CosmosClientUtil.class);
 
-    public static final String ENDPOINT = "https://rubixcube.documents.azure.com:443/";
+    public static final String ENDPOINT = "https://multiwritetest.documents.azure.com:443/";
     public static final String KEY = "==";
     public static final String DATABASE = "Sample";
     public static final String COLLECTION = "Offline";
@@ -47,6 +48,16 @@ public class CosmosClientUtil {
         CosmosAsyncClient client = new CosmosClientBuilder()
                 .endpoint(ENDPOINT)
                 .key(KEY)
+                .contentResponseOnWriteEnabled(true)
+                .buildAsyncClient();
+        return client;
+    }
+
+    public static CosmosAsyncClient getAsyncClient(List<String> prefferedLocations) {
+        CosmosAsyncClient client = new CosmosClientBuilder()
+                .endpoint(ENDPOINT)
+                .key(KEY)
+                .preferredRegions(prefferedLocations)
                 .contentResponseOnWriteEnabled(true)
                 .buildAsyncClient();
         return client;
