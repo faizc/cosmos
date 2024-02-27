@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sample.cosmos.client.CosmosClientUtil;
 import com.sample.cosmos.vo.Entity;
+import com.sample.cosmos.vo.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.scheduler.Schedulers;
@@ -15,6 +16,8 @@ import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 public class CFP_FF_Push {
@@ -28,7 +31,7 @@ public class CFP_FF_Push {
     private static boolean isWorkCompleted = false;
 
     private static ChangeFeedProcessorOptions options;
-    private static List<Entity> documentList = new ArrayList<>();
+    private static List<Order> documentList = new ArrayList<>();
 
     public static void main(String[] args) {
         System.out.println("BEGIN Sample");
@@ -39,6 +42,7 @@ public class CFP_FF_Push {
             options = new ChangeFeedProcessorOptions();
             options.setStartFromBeginning(false);
             //options.setLeasePrefix("myChangeFeedDeploymentUnit");
+            options.setFeedPollDelay(Duration.ofMinutes(1));
             // </ChangeFeedProcessorOptions>
 
             //Summary of the next four commands:
@@ -55,7 +59,7 @@ public class CFP_FF_Push {
             CosmosAsyncContainer leaseContainer = CosmosClientUtil.createNewLeaseCollection(client);
             // <StartChangeFeedProcessor>
             System.out.println("-->START Change Feed Processor on worker (handles changes asynchronously)");
-            changeFeedProcessorInstance = getChangeFeedProcessorForAllVersionsAndDeletesMode("SampleHost_1",
+            changeFeedProcessorInstance = getChangeFeedProcessorForAllVersionsAndDeletesMode("SampleHost_2",
                     feedContainer,
                     leaseContainer);
             changeFeedProcessorInstance.start()
@@ -67,9 +71,9 @@ public class CFP_FF_Push {
             // </StartChangeFeedProcessor>
 
             //System.out.println("\n\nSTART application that inserts documents into feed container");
-            //createNewDocumentsCustomPOJO(feedContainer, 10, Duration.ofSeconds(3));
-            //upsertDocumentsCustomPOJO(feedContainer, 10, Duration.ofSeconds(3));
-            //deleteDocumentsCustomPOJO(feedContainer, 10, Duration.ofSeconds(3));
+            /*createNewDocumentsCustomPOJO(feedContainer, 10, Duration.ofSeconds(3));
+            upsertDocumentsCustomPOJO(feedContainer, 10, Duration.ofSeconds(3));
+            deleteDocumentsCustomPOJO(feedContainer, 10, Duration.ofSeconds(3));*/
 
             // Wait for some time
             latch.await();;
@@ -137,9 +141,14 @@ public class CFP_FF_Push {
     public static void createNewDocumentsCustomPOJO(CosmosAsyncContainer containerClient, int count, Duration delay) {
         String suffix = RandomStringUtils.randomAlphabetic(10);
         for (int i = 0; i <= count; i++) {
-            Entity document = new Entity();
-            document.setId(String.format("0%d-%s", i, suffix));
-            document.setPk(document.getId()); // This is a very simple example, so we'll just have a partition key (/pk) field that we set equal to id
+            Order document = new Order();
+            ///document.setId(String.format("0%d-%s", i, suffix));
+            //document.setPk(document.getId()); // This is a very simple example, so we'll just have a partition key (/pk) field that we set equal to id
+            String id = UUID.randomUUID().toString();
+            document.setId(id);
+            document.setOrderid(id);
+            document.setType("Online");
+            document.getItems().add("Jeans");
 
             containerClient.createItem(document).subscribe(doc -> {
                 System.out.println("---->DOCUMENT INSERT: " + doc);
@@ -161,14 +170,22 @@ public class CFP_FF_Push {
 
     public static void upsertDocumentsCustomPOJO(CosmosAsyncContainer containerClient, int count, Duration delay) {
         String suffix = RandomStringUtils.randomAlphabetic(10);
-        for (int i = 0; i <= count; i++) {
-            Entity document = new Entity();
+        for(Order order: documentList) {
+        //for (int i = 0; i <= count; i++) {
+            /*Entity document = new Entity();
             document.setId(String.format("0%d-%s", i, suffix));
             document.setPk(document.getId()); // This is a very simple example, so we'll just have a partition key (/pk) field that we set equal to id
+*/
 
-            containerClient.upsertItem(document).subscribe(doc -> {
+            order.setType("Online");
+            order.getItems().add("Belt");
+            while(new Random().nextLong()%2==0) {
+                order.getItems().add(RandomStringUtils.randomAlphabetic(10));
+            }
+
+            containerClient.upsertItem(order).subscribe(doc -> {
                 System.out.println("---->DOCUMENT UPSERT: " + doc);
-                documentList.add(document);
+                //documentList.add(document);
             });
 
             long remainingWork = delay.toMillis();
@@ -185,9 +202,10 @@ public class CFP_FF_Push {
     }
 
     public static void deleteDocumentsCustomPOJO(CosmosAsyncContainer containerClient, int count, Duration delay) {
-        for (int i = 0; i <= count; i++) {
-            Entity document = documentList.get(i);
-            containerClient.deleteItem(document.getId(), new PartitionKey(document.getPk())).subscribe(doc -> {
+        for(Order order: documentList) {
+        //for (int i = 0; i <= count; i++) {
+            //Entity document = documentList.get(i);
+            containerClient.deleteItem(order.getId(), new PartitionKey(order.getOrderid())).subscribe(doc -> {
                 System.out.println("---->DOCUMENT DELETE: " + doc);
             });
 

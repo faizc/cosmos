@@ -19,12 +19,13 @@ public class CRUD {
         //
         crud.init();
         //crud.selectuseraudience();
-        for(int i=1; i<=30;i++) {
+        for(int i=1; i<=1;i++) {
             System.out.println(i);
             crud.insertuseraudience(useraudience);
         }
         crud.selectuseraudience();
         //crud.deleteuseraudience();
+        System.exit(0);
     }
 
     public void init() {
@@ -46,7 +47,7 @@ public class CRUD {
     public void selectuseraudience() {
 
         final String query = "SELECT * FROM adtech.user2 where userid = 700000001";
-        ResultSet resultSet = session.execute(query);
+        ResultSet resultSet = session.execute(new SimpleStatement(query).setReadTimeoutMillis(100000));
         Double requestCharge = resultSet.getExecutionInfo().getIncomingPayload().get("RequestCharge").getDouble();
         System.out.println("SELECT "+requestCharge);
         for (Row row : resultSet.all()) {

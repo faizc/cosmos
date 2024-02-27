@@ -51,6 +51,14 @@ public class CassandraUtils {
             final SSLContext sc = SSLContext.getInstance("TLSv1.2");
             sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
 
+            PoolingOptions poolingOptions = new PoolingOptions();
+            poolingOptions
+                    .setConnectionsPerHost(HostDistance.LOCAL,  4, 10)
+                    .setConnectionsPerHost(HostDistance.REMOTE, 2, 4);
+            poolingOptions
+                    .setMaxRequestsPerConnection(HostDistance.LOCAL, 32768)
+                    .setMaxRequestsPerConnection(HostDistance.REMOTE, 2000);
+
             JdkSSLOptions sslOptions = RemoteEndpointAwareJdkSSLOptions.builder()
                     .withSSLContext(sc)
                     .build();
@@ -58,8 +66,18 @@ public class CassandraUtils {
                     .addContactPoint(cassandraHost)
                     .withPort(cassandraPort)
                     .withCredentials(cassandraUsername, cassandraPassword)
+                    .withPoolingOptions(poolingOptions)
+                    .withSocketOptions(
+                            new SocketOptions()
+                                    .setConnectTimeoutMillis(2000))
                     .withSSL(sslOptions)
                     .build();
+
+            PoolingOptions poolingOptions2 = cluster.getConfiguration().getPoolingOptions();
+            System.out.println("\n*******************************************************\n");
+            System.out.println(" Local MaxConnectionsPerHost "+poolingOptions2.getMaxConnectionsPerHost(HostDistance.LOCAL));
+            System.out.println(" Remote MaxConnectionsPerHost "+poolingOptions2.getMaxConnectionsPerHost(HostDistance.REMOTE));
+            System.out.println("\n*******************************************************\n");
 
             return cluster.connect();
         } catch (Exception ex) {

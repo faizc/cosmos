@@ -74,7 +74,7 @@ public class CustomConflictResolution {
         readConflicts(iterator, testPojos, conflictIds);
         System.out.println("conflictIds size "+conflictIds.size());
         // delete the container
-        //container.delete().block();
+        container.delete().block();
     }
 
     private static void readConflicts(Iterator<FeedResponse<CosmosConflictProperties>> iterator,

@@ -17,7 +17,8 @@ public class HierarchicalPartition {
         CosmosAsyncContainer container = CosmosClientUtil.getAsyncCollection(client
                 , CosmosClientUtil.COLLECTION);
         //createItem(container);
-        query(container);
+        //query(container);
+        pointRead(container);
     }
 
     public static void createItem(CosmosAsyncContainer container) {
@@ -43,8 +44,8 @@ public class HierarchicalPartition {
 
         // Build the full partition key path
         PartitionKey partitionKey = new PartitionKeyBuilder()
-                .add("1") //UserId
-                .add("9000") //SessionId
+                .add(1) //UserId
+                .add("856b39d1-a114-49cc-ad80-288ebd3d5cbe") //SessionId
                 .build();
 
         // Perform a point read
